@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE6">
+  <meta charset="UTF-8">
+  <title>Vue 2.7 IE6 Test</title>
+  <!-- IE6-8 support for HTML5 elements -->
+  <script src="./local_vue/vue2/html5shiv.min.js"></script>
+  <!-- ES5 compatibility shims -->
+  <script src="./local_vue/vue2/es5-shim.min.js"></script>
+  <!-- DOM4 polyfill -->
+  <script src="./local_vue/vue2/dom4.js"></script>
+  <!-- EventListener polyfill -->
+  <script src="./local_vue/vue2/EventListener.oldie.js"></script>
+  <script src="./local_vue/vue2/eventlistener.js"></script>
+  <!-- Promise polyfill -->
+  <script src="./local_vue/vue2/es6-promise.auto.min.js"></script>
+  <!-- Babel browser polyfill -->
+  <script src="./local_vue/vue2/browser-polyfill.min.js"></script>
+  <!-- Vue 2.7 -->
+  <script src="./local_vue/vue2/vue.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>{{ title }}</h1>
+    <div v-if="showContent">
+      <p>Current time: {{ formattedTime }}</p>
+      <button @click="toggleList">Toggle List</button>
+      <ul v-show="showList">
+        <li v-for="(item, index) in items" :key="index">
+          {{ item.text }} ({{ item.id }})
+        </li>
+      </ul>
+      <input v-model="newItem" @keyup.enter="addItem">
+      <button @click="addItem">Add Item</button>
+    </div>
+    <div v-else>
+      <p>Content is hidden</p>
+      <button @click="showContent = true">Show Content</button>
+    </div>
+    <div>
+      <p>Computed reversed message: {{ reversedMessage }}</p>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        title: 'Vue 2.7 IE6 Compatibility Test',
+        showContent: true,
+        showList: true,
+        items: [
+          { id: 1, text: 'Item 1' },
+          { id: 2, text: 'Item 2' }
+        ],
+        newItem: '',
+        currentTime: new Date()
+      },
+      computed: {
+        formattedTime: function() {
+          return this.currentTime.toLocaleTimeString();
+        },
+        reversedMessage: function() {
+          return this.title.split('').reverse().join('');
+        }
+      },
+      methods: {
+        toggleList: function() {
+          this.showList = !this.showList;
+        },
+        addItem: function() {
+          if (this.newItem.trim()) {
+            this.items.push({
+              id: this.items.length + 1,
+              text: this.newItem
+            });
+            this.newItem = '';
+          }
+        }
+      },
+      created: function() {
+        var self = this;
+        setInterval(function() {
+          self.currentTime = new Date();
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>
