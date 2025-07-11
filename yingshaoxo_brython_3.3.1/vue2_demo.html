@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Python-Powered Todo List</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script src="brython.js"></script>
+    <script src="brython_stdlib.js"></script>
+    <script src="yingshaoxo_python.js"></script>
+    <style>
+        .todo-app {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+        .todo-item.completed {
+            background: #e9ecef;
+            text-decoration: line-through;
+        }
+        .todo-text {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="todo-app">
+        <h2>Python-Powered Todo List</h2>
+        <div>
+            <input v-model="newTodo" @keyup.enter="addTodo" 
+                   placeholder="Add a new todo" class="todo-input">
+            <button @click="addTodo">Add</button>
+        </div>
+        
+        <div v-if="todos.length">
+            <div v-for="(todo, index) in todos" :key="index" 
+                 class="todo-item" :class="{completed: todo.completed}">
+                <input type="checkbox" v-model="todo.completed" 
+                       @change="toggleTodo(todo)">
+                <span class="todo-text">{{ todo.text }}</span>
+                <button @click="deleteTodo(index)" class="delete-btn">×</button>
+            </div>
+        </div>
+        <div v-else>
+            <p>No todos yet! Add your first todo above.</p>
+        </div>
+    </div>
+
+    <script>
+    new Vue({
+        el: '#app',
+        data: {
+            newTodo: '',
+            todos: []
+        },
+        methods: {
+            addTodo() {
+                // Use Python to clean input
+                const cleanedText = call_python(
+                    "data_0.strip()", 
+                    this.newTodo
+                );
+                
+                if (cleanedText && !cleanedText.error) {
+                    this.todos.push({
+                        text: cleanedText,
+                        completed: false
+                    });
+                    this.newTodo = '';
+                }
+            },
+            toggleTodo(todo) {
+                // Use Python to invert boolean
+                const newState = call_python(
+                    "not data_0",
+                    todo.completed
+                );
+                
+                if (!newState.error) {
+                    todo.completed = newState;
+                }
+            },
+            deleteTodo(index) {
+                // Use Python to filter list
+                const newList = call_python(
+                    "[item for i, item in enumerate(data_0) if i != data_1]",
+                    this.todos,
+                    index
+                );
+                
+                if (!newList.error) {
+                    this.todos = newList;
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html>

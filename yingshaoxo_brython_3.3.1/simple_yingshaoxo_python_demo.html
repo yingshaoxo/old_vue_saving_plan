@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Yingshaoxo Brython In Browser</title>
+    <script src="brython.js"></script>
+    <script src="brython_stdlib.js"></script>
+    <script src="yingshaoxo_python.js"></script>
+    <style>
+        .demo-box {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        pre {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        /* Add terminal styling */
+        .python-terminal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            font-family: monospace;
+        }
+        .terminal-output {
+            height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+        .terminal-input {
+            width: 100%;
+            background: #252526;
+            color: #d4d4d4;
+            border: 1px solid #3c3c3c;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body onload="brython({debug: 1})">
+    <div class="demo-box">
+        <h2>Python Magic in Browser</h2>
+        
+        <div class="demo-box">
+            <h3>1. String Reversal</h3>
+            <button onclick="reverseString()">Reverse "Hello World!"</button>
+            <pre id="reverse-result"></pre>
+        </div>
+
+        <div class="demo-box">
+            <h3>2. List Comprehension</h3>
+            <button onclick="generateEvens()">Generate Even Numbers 1-10</button>
+            <pre id="list-result"></pre>
+        </div>
+
+        <div class="demo-box">
+            <h3>3. Dictionary Merge</h3>
+            <button onclick="mergeDicts()">Merge Dictionaries</button>
+            <pre id="dict-result"></pre>
+        </div>
+
+        <div class="demo-box">
+            <h3>4. Prime Check</h3>
+            <input type="number" id="primeInput" value="13" style="width: 60px">
+            <button onclick="checkPrime()">Check Prime</button>
+            <pre id="prime-result"></pre>
+        </div>
+    </div>
+
+    <div class="python-terminal">
+        <h3 style="color: #fff">Python Terminal</h3>
+        <div class="terminal-output" id="terminal-output"></div>
+        <input type="text" class="terminal-input" id="terminal-input" 
+               placeholder="Enter Python code and press Enter" 
+               onkeypress="handleTerminalInput(event)">
+    </div>
+
+    <script>
+    // String reversal demo
+    function reverseString() {
+        const result = call_python("data_0[::-1]", "Hello World!");
+        document.getElementById('reverse-result').textContent = result;
+    }
+
+    // List comprehension demo
+    function generateEvens() {
+        const evens = call_python("[x for x in range(1,11) if x%2 == 0]");
+        document.getElementById('list-result').textContent = JSON.stringify(evens);
+    }
+
+    // Dictionary merge demo
+    function mergeDicts() {
+        const dict1 = {name: "Python"};
+        const dict2 = {version: 3, type: "language"};
+        const merged = call_python(`
+            a_dict = data_0
+            for key, value in enumerate(data_1):
+                a_dict[key] = value
+            a_dict
+        `, dict1, dict2);
+        document.getElementById('dict-result').textContent = JSON.stringify(merged);
+    }
+
+    // Prime check demo
+    function checkPrime() {
+        const num = parseInt(document.getElementById('primeInput').value);
+        const isPrime = call_python(
+            "all(num % i != 0 for i in range(2, int(num**0.5)+1)) and num > 1",
+            num
+        );
+        document.getElementById('prime-result').textContent = 
+            `${num} is ${isPrime ? '' : 'not '}a prime number`;
+    }
+
+    // Terminal functionality
+    function handleTerminalInput(event) {
+        if (event.key === 'Enter') {
+            const input = event.target.value;
+            event.target.value = '';
+            
+            // Display input
+            const outputDiv = document.getElementById('terminal-output');
+            outputDiv.innerHTML += `<span style="color: #569cd6">>>> </span>${input}\n`;
+            
+            // Execute Python
+            try {
+                const result = call_python(input);
+                outputDiv.innerHTML += `<span style="color: #9cdcfe">${JSON.stringify(result, null, 2)}</span>\n`;
+            } catch (error) {
+                outputDiv.innerHTML += `<span style="color: #d16969">Error: ${error}</span>\n`;
+            }
+            
+            // Auto-scroll to bottom
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+    }
+    </script>
+</body>
+</html>

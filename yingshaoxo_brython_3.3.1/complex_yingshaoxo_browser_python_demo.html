@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Python in Browser Demo</title>
+    <script type="text/javascript" src="brython.js"></script>
+    <script type="text/javascript" src="brython_stdlib.js"></script>
+    <style>
+        .result {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body onload="brython({debug: 1})">
+    <div>
+        <h2>Python in Browser Demo</h2>
+        
+        <div class="result">
+            <h3>String Operations</h3>
+            <button onclick="testStringOperations()">Test String Operations</button>
+            <div id="string-results"></div>
+        </div>
+
+        <div class="result">
+            <h3>List Operations</h3>
+            <button onclick="testListOperations()">Test List Operations</button>
+            <div id="list-results"></div>
+        </div>
+
+        <div class="result">
+            <h3>Dictionary Operations</h3>
+            <button onclick="testDictOperations()">Test Dict Operations</button>
+            <div id="dict-results"></div>
+        </div>
+    </div>
+
+    <script type="text/python">
+from browser import window, console
+import json
+
+def handle_python_call(operation, json_args):
+    try:
+        args = json.loads(json_args)
+        # Create namespace with builtins
+        namespace = {'__builtins__': __builtins__}
+        # Add arguments to namespace
+        for i, arg in enumerate(args):
+            namespace['data_{0}'.format(i)] = arg
+            
+        result = eval(operation, namespace)
+        return json.dumps(result)
+    except Exception as e:
+        console.error("Python error: {0}".format(e))
+        return json.dumps({'error': str(e)})
+
+window.handle_python_call = handle_python_call
+    </script>
+
+    <script>
+    function call_python(operation, ...args) {
+        try {
+            const jsonArgs = JSON.stringify(args);
+            return JSON.parse(window.handle_python_call(operation, jsonArgs));
+        } catch (error) {
+            console.error("JS Error:", error);
+            return {error: error.message};
+        }   
+    }   
+
+    function testStringOperations() {
+        const text = "  Hello world!  ";
+        const results = {
+            original: text,
+            stripped: call_python("data_0.strip()", text),
+            split: call_python("data_0.split()", text),
+            contains: call_python("'world' in data_0", text),
+            starts_with: call_python("data_0.strip().startswith('Hello')", text)
+        };
+        document.getElementById('string-results').innerHTML = `
+            <pre>Original: ${JSON.stringify(results.original)}</pre>
+            <pre>Stripped: ${JSON.stringify(results.stripped)}</pre>
+            <pre>Split: ${JSON.stringify(results.split)}</pre>
+            <pre>Contains 'world': ${JSON.stringify(results.contains)}</pre>
+            <pre>Starts with 'Hello': ${JSON.stringify(results.starts_with)}</pre>
+        `;
+    }
+
+    function testListOperations() {
+        const list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        const results = {
+            original: list,
+            first_two: call_python("data_0[:2]", list),
+            reversed: call_python("data_0[::-1]", list),
+            filtered: call_python("[x for x in data_0 if x > 5]", list)
+        };
+        document.getElementById('list-results').innerHTML = `
+            <pre>Original: ${JSON.stringify(results.original)}</pre>
+            <pre>First two items: ${JSON.stringify(results.first_two)}</pre>
+            <pre>Reversed: ${JSON.stringify(results.reversed)}</pre>
+            <pre>Filtered (> 5): ${JSON.stringify(results.filtered)}</pre>
+        `;
+    }
+
+    function testDictOperations() {
+        const dict = {"name": "Python", "version": 3};
+        const results = {
+            original: dict,
+            keys: call_python("list(data_0.keys())", dict),
+            modified: call_python("dict(data_0, type='language')", dict)
+        };
+        document.getElementById('dict-results').innerHTML = `
+            <pre>Original: ${JSON.stringify(results.original)}</pre>
+            <pre>Keys: ${JSON.stringify(results.keys)}</pre>
+            <pre>Modified: ${JSON.stringify(results.modified)}</pre>
+        `;
+    }
+
+    setTimeout(function () {
+        console.log(call_python(`1 + 1`));
+        console.log(call_python(`
+def hi(a, b):
+    return a * b
+hi(2, 3)
+        `));
+    }, 1000)
+    </script>
+</body>
+</html>
