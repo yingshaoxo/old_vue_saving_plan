@@ -20,3 +20,5 @@ All in all, in this method, we are using python only for handling data, pure 5 t
 I think you did good on this.
 
 Can you create a javascript function called 'insert_python_code_at_global(python_code)', the python_code is string ``, it normally will create some global level python functions or variables so that callPython function can use.
+
+It seems like after we called the eval(), all functions and class and variables we created should get saved under the window. variable, so later when we call eval again, we can reuse old functions and variables we have defined before.
