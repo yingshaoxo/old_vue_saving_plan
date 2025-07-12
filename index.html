@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE6">
   <meta charset="UTF-8">
-  <title>Vue 2.7 IE6 Test</title>
+  <title>Vue 2.7 Test</title>
   <!-- IE6-8 support for HTML5 elements -->
   <script src="./local_vue/vue2/html5shiv.min.js"></script>
   <!-- ES5 compatibility shims -->
@@ -22,21 +22,21 @@
 </head>
 <body>
   <div id="app">
-    <h1>{{ title }}</h1>
-    <div v-if="showContent">
+    <h1>{{ data.title }}</h1>
+    <div v-if="data.show_content">
       <p>Current time: {{ formattedTime }}</p>
-      <button @click="toggleList">Toggle List</button>
-      <ul v-show="showList">
-        <li v-for="(item, index) in items" :key="index">
+      <button @click="functions.toggleList">Toggle List</button>
+      <ul v-show="data.show_list">
+        <li v-for="(item, index) in data.items" :key="index">
           {{ item.text }} ({{ item.id }})
         </li>
       </ul>
-      <input v-model="newItem" @keyup.enter="addItem">
-      <button @click="addItem">Add Item</button>
+      <input v-model="data.new_item" @keyup.enter="functions.addItem">
+      <button @click="functions.addItem">Add Item</button>
     </div>
     <div v-else>
       <p>Content is hidden</p>
-      <button @click="showContent = true">Show Content</button>
+      <button @click="data.show_content = true">Show Content</button>
     </div>
     <div>
       <p>Computed reversed message: {{ reversedMessage }}</p>
@@ -44,45 +44,49 @@
   </div>
 
   <script>
-    new Vue({
+    var the_vue_instance = new Vue({
       el: '#app',
       data: {
-        title: 'Vue 2.7 IE6 Compatibility Test',
-        showContent: true,
-        showList: true,
-        items: [
-          { id: 1, text: 'Item 1' },
-          { id: 2, text: 'Item 2' }
-        ],
-        newItem: '',
-        currentTime: new Date()
+        data: {
+            title: 'Vue 2.7 (IE6 not work) (xp chrome 49 works)',
+            show_content: true,
+            show_list: true,
+            items: [
+              { id: 1, text: 'Item 1' },
+              { id: 2, text: 'Item 2' }
+            ],
+            new_item: '',
+            current_time: new Date(),
+        },
+        functions: {
+            toggleList: function() {
+              the_vue_instance.data.show_list = !the_vue_instance.data.show_list;
+            },
+            addItem: function() {
+              if (the_vue_instance.data.new_item.trim()) {
+                the_vue_instance.data.items.push({
+                  id: the_vue_instance.data.items.length + 1,
+                  text: the_vue_instance.data.new_item
+                });
+                the_vue_instance.data.new_item = '';
+              }
+            },
+        }
       },
       computed: {
         formattedTime: function() {
-          return this.currentTime.toLocaleTimeString();
+          return this.data.current_time.toLocaleTimeString();
         },
         reversedMessage: function() {
-          return this.title.split('').reverse().join('');
+          return this.data.title.split('').reverse().join('');
         }
       },
       methods: {
-        toggleList: function() {
-          this.showList = !this.showList;
-        },
-        addItem: function() {
-          if (this.newItem.trim()) {
-            this.items.push({
-              id: this.items.length + 1,
-              text: this.newItem
-            });
-            this.newItem = '';
-          }
-        }
       },
       created: function() {
-        var self = this;
+        var self = this; // equal to the_vue_instance
         setInterval(function() {
-          self.currentTime = new Date();
+          the_vue_instance.data.current_time = new Date();
         }, 1000);
       }
     });
