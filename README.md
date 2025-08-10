@@ -21,7 +21,7 @@ Just serve current folder as http service, and visit 'index.html' or 'vue3_index
 
 ## Bugs in antdesign
 
-No matter how you try to import antd from <scrpt> tag, it will not work. They didn't test their libarary before they publish.
+No matter how you try to import antd from <scrpt> tag, it will not work. They didn't test their library before they publish.
 
 ```
 Uncaught TypeError: t is undefined

@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery 1.12.4 AJAX Demo</title>
+    <script src="./jquery-1.12.4.min.js"></script>
+</head>
+<body>
+    <h1>AJAX Demo with jQuery 1.12.4</h1>
+    
+    <div>
+        <h3>GET Request</h3>
+        <button id="getBtn">Send GET Request</button>
+        <div id="getResult"></div>
+    </div>
+    
+    <div>
+        <h3>POST Request with JSON</h3>
+        <button id="postBtn">Send POST Request</button>
+        <div id="postResult"></div>
+    </div>
+    
+    <div>
+        <h3>Textarea Operations</h3>
+        <textarea id="demoTextarea" rows="4" cols="50">Initial text</textarea><br>
+        <button id="getTextBtn">Get Textarea Content</button>
+        <button id="setTextBtn">Set Textarea Content</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // GET request example
+            $("#getBtn").click(function() {
+                $.ajax({
+                    url: "https://jsonplaceholder.typicode.com/posts/1",
+                    type: "GET",
+                    success: function(data) {
+                        $("#getResult").html("<pre>" + JSON.stringify(data, null, 2) + "</pre>");
+                    },
+                    error: function(xhr, status, error) {
+                        $("#getResult").html("Error: " + error);
+                    }
+                });
+            });
+            
+            // POST request with headers and JSON data
+            $("#postBtn").click(function() {
+                var postData = {
+                    title: "jQuery demo",
+                    body: "This is a POST request with JSON",
+                    userId: 1
+                };
+                
+                $.ajax({
+                    url: "https://jsonplaceholder.typicode.com/posts",
+                    type: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Custom-Header": "MyApp-v1.0"
+                    },
+                    data: JSON.stringify(postData),
+                    success: function(data) {
+                        $("#postResult").html("<pre>" + JSON.stringify(data, null, 2) + "</pre>");
+                    },
+                    error: function(xhr, status, error) {
+                        $("#postResult").html("Error: " + error);
+                    }
+                });
+            });
+            
+            // Textarea operations
+            $("#getTextBtn").click(function() {
+                var text = $("#demoTextarea").val();
+                alert("Textarea content: " + text);
+            });
+            
+            $("#setTextBtn").click(function() {
+                $("#demoTextarea").val("New text set at: " + new Date().toLocaleTimeString());
+            });
+        });
+    </script>
+</body>
+</html>
