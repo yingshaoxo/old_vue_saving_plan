@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -28,5 +29,149 @@
         })
         .mount('#app')
     </script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue 3 Global Component</title>
+    <script src="./local_vue/vue3/vue3.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>{{ message }}</h1>
+        <button @click="count++">Count is: {{ count }}</button>
+        <my-button 
+            :text="'Primary Button'" 
+            :type="'primary'"
+            @button-clicked="handleButtonClick"
+        ></my-button>
+        <my-button 
+            :text="'Danger Button'" 
+            :type="'danger'"
+            :disabled="true"
+        ></my-button>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue
+        
+        // Define the component with complete properties
+        const MyButton = {
+            props: {
+                text: {
+                    type: String,
+                    default: 'Click Me'
+                },
+                type: {
+                    type: String,
+                    default: 'primary',
+                    validator: value => ['primary', 'secondary', 'danger'].includes(value)
+                },
+                disabled: {
+                    type: Boolean,
+                    default: false
+                }
+            },
+            template: `
+                <button 
+                    :style="buttonStyle"
+                    :disabled="disabled"
+                    @click="handleClick"
+                    @mouseover="hover = true"
+                    @mouseleave="hover = false"
+                >
+                    {{ text }}
+                    <span v-if="showTooltip" class="tooltip">Tooltip!</span>
+                </button>
+            `,
+            data() {
+                return {
+                    hover: false,
+                    clickCount: 0
+                }
+            },
+            computed: {
+                buttonStyle() {
+                    const baseStyle = {
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        margin: '8px',
+                        border: 'none',
+                        cursor: this.disabled ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.3s ease',
+                        opacity: this.disabled ? 0.6 : 1
+                    };
+                    
+                    const typeStyles = {
+                        primary: { backgroundColor: '#42b983', color: 'white' },
+                        secondary: { backgroundColor: '#f0f0f0', color: '#333' },
+                        danger: { backgroundColor: '#ff4444', color: 'white' }
+                    };
+                    
+                    return { ...baseStyle, ...typeStyles[this.type] };
+                },
+                showTooltip() {
+                    return this.hover && !this.disabled;
+                }
+            },
+            methods: {
+                handleClick() {
+                    if (!this.disabled) {
+                        this.clickCount++;
+                        this.$emit('button-clicked', { 
+                            text: this.text,
+                            count: this.clickCount
+                        });
+                    }
+                }
+            },
+            created() {
+                console.log('Button component created:', this.text);
+            },
+            mounted() {
+                console.log('Button mounted to DOM');
+            }
+        }
+        
+        const app = createApp({
+            setup() {
+                const message = ref('Hello Vue 3!')
+                const count = ref(0)
+                
+                const handleButtonClick = (payload) => {
+                    console.log('Button clicked:', payload);
+                    count.value += 1;
+                }
+                
+                return {
+                    message,
+                    count,
+                    handleButtonClick
+                }
+            }
+        })
+        
+        // Register component globally
+        app.component('my-button', MyButton)
+        
+        app.mount('#app')
+    </script>
+    <style>
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-top: 30px;
+            margin-left: 8px;
+        }
+    </style>
 </body>
 </html>

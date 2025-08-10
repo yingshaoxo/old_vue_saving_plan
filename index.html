@@ -41,9 +41,25 @@
     <div>
       <p>Computed reversed message: {{ reversedMessage }}</p>
     </div>
+
+    <your_component_name></your_component_name>
   </div>
 
   <script>
+    /*
+      How to reuse component imported from other script?
+
+      <your_component_name></your_component_name>
+
+      function create_and_bind_a_button(selector) {
+          Vue.component(selector, {
+            template: '<button @click="handleClick">点击</button>',
+            methods: { handleClick() { alert('Clicked!'); } }
+          });
+      }
+
+      create_and_bind_a_button("your_component_name");
+    */
     var the_vue_instance = new Vue({
       el: '#app',
       data: {
@@ -90,6 +106,16 @@
         }, 1000);
       }
     });
+  </script>
+  <script>
+      function create_and_bind_a_button(selector) {
+          Vue.component(selector, {
+            template: '<button @click="handleClick">点击</button>',
+            methods: { handleClick() { alert('Clicked!'); } }
+          });
+      }
+
+      create_and_bind_a_button("your_component_name");
   </script>
 </body>
 </html>
